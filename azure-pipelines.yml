@@ -19,7 +19,7 @@ steps:
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceEndpoint: 'connect-nm'
-    namespace: 'Nicolas-AKS'
+    namespace: 'k8s'
     command: 'top'
     arguments: 'pod'
 
