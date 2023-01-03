@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+jobs:
+build:
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v2
+  - name: Get Docker Image Version
+    run: |
+      image_version=$(curl -s https://hub.docker.com/r/simplonasa/azure_voting_app/tags | jq -r ".name")
+  - name: Update AKS
+    uses: Azure/aks-set-context@v1
+    with:
+      creds: '${{ secrets.AZURE_CREDENTIALS }}'
+      cluster-name: my-cluster-name
+  - name: Set image version
+    run: echo ::set-env name=IMAGE_VERSION::$image_version
+  - name: Update image
+    run: |
+      kubectl set image deployment/my-deployment-name my-container-name=my-image-name:$IMAGE_VERSION
+      kubectl rollout status deployment/my-deployment-name.
