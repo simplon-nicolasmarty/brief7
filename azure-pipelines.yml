@@ -6,22 +6,39 @@
 trigger:
 - main
 
-jobs:
-build:
-  runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@v2
-  - name: Get Docker Image Version
-    run: |
-      image_version=$(curl -s https://hub.docker.com/r/simplonasa/azure_voting_app/tags | jq -r ".name")
-  - name: Update AKS
-    uses: Azure/aks-set-context@v1
-    with:
-      creds: '${{ secrets.AZURE_CREDENTIALS }}'
-      cluster-name: my-cluster-name
-  - name: Set image version
-    run: echo ::set-env name=IMAGE_VERSION::$image_version
-  - name: Update image
-    run: |
-      kubectl set image deployment/my-deployment-name my-container-name=my-image-name:$IMAGE_VERSION
-      kubectl rollout status deployment/my-deployment-name.
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'connect-nm'
+    namespace: 'Nicolas-AKS'
+    command: 'top'
+    arguments: 'pod'
+
+- task: Cache@2
+  inputs:
+    key: '12345'
+    path: '/home/vsts/version'
+    cacheHitVar: 'cachette'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      cat /home/vsts/version/version.vote
+      mkdir /home/vsts/version
+      pwd
+      curl ''https://hub.docker.com/v2/repositories/simplonasa/azure_voting_app/tags'' | jq '."results"[0]["name"]'>/home/vsts/version/version.vote
+      cat /home/vsts/version/version.vote
+- task: Cache@2
+  inputs:
+    key: '12345'
+    path: '/home/vsts/version'
+    cacheHitVar: 'cachette'
