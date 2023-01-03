@@ -1,7 +1,6 @@
 # Spécifie le démarrage du pipeline
 trigger:
 - main
-
 # Définit les variables d'environnement du pipeline
 variables:
   # Nom de l'image Docker
@@ -12,13 +11,8 @@ variables:
   appName: 'K8S'
   # Nom du cluster Kubernetes AKS
   clusterName: 'Nicolas-AKS'
-  # ID de l'abonnement Azure
-  subscriptionId: 'a2e466aa-4f86-4545-b5b8-97da7c8febf3'
   # ID de ressource de l'abonnement Azure
   resourceGroup: 'Nicolas'
-  # ID de service de gestion de la clé d'API Azure
-  acrRegistryId: '00000000-0000-0000-0000-000000000000'
-
 # Définit les étapes du pipeline
 stages:
   # Étape de vérification de la version de l'image Docker
@@ -56,18 +50,14 @@ stages:
           - task: AzureCLI@2
             displayName: Login to Azure
             inputs:
-              azureSubscription: "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
                 # Connecte à l'abonnement Azure
                 az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
-                # Sélectionne l'abonnement Azure
-                az account set --subscription "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
           - task: AzureCLI@2
             displayName: Set Context to AKS Cluster
             inputs:
-              azureSubscription: "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
