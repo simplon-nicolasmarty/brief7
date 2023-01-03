@@ -1,6 +1,6 @@
 # Spécifie le démarrage du pipeline
 trigger:
-- master
+- main
 
 # Définit les variables d'environnement du pipeline
 variables:
