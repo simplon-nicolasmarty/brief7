@@ -5,17 +5,17 @@ trigger:
 # Définit les variables d'environnement du pipeline
 variables:
   # Nom de l'image Docker
-  imageName: 'azure_voting_app'
+  imageName: azure_voting_app
   # Nom du répertoire de l'image Docker
-  imageRepo: 'simplonasa'
+  imageRepo: simplonasa
   # Nom de l'application Kubernetes
-  appName: 'K8S'
+  appName: K8S
   # Nom du cluster Kubernetes AKS
-  clusterName: 'Nicolas-AKS'
+  clusterName: Nicolas-AKS
   # ID de l'abonnement Azure
-  subscriptionId: 'a2e466aa-4f86-4545-b5b8-97da7c8febf3'
+  subscriptionId: a2e466aa-4f86-4545-b5b8-97da7c8febf3
   # ID de ressource de l'abonnement Azure
-  resourceGroup: 'Nicolas'
+  resourceGroup: Nicolas
 
 # Définit les étapes du pipeline
 stages:
