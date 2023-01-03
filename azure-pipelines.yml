@@ -1,21 +1,23 @@
 # Spécifie le démarrage du pipeline
 trigger:
-- main
+- master
 
 # Définit les variables d'environnement du pipeline
 variables:
   # Nom de l'image Docker
-  imageName: azure_voting_app
+  imageName: 'azure_voting_app'
   # Nom du répertoire de l'image Docker
-  imageRepo: simplonasa
+  imageRepo: 'simplonasa'
   # Nom de l'application Kubernetes
-  appName: K8S
+  appName: 'K8S'
   # Nom du cluster Kubernetes AKS
-  clusterName: Nicolas-AKS
+  clusterName: 'Nicolas-AKS'
   # ID de l'abonnement Azure
-  subscriptionId: a2e466aa-4f86-4545-b5b8-97da7c8febf3
+  subscriptionId: 'a2e466aa-4f86-4545-b5b8-97da7c8febf3'
   # ID de ressource de l'abonnement Azure
-  resourceGroup: Nicolas
+  resourceGroup: 'Nicolas'
+  # ID de service de gestion de la clé d'API Azure
+  acrRegistryId: '00000000-0000-0000-0000-000000000000'
 
 # Définit les étapes du pipeline
 stages:
@@ -54,18 +56,18 @@ stages:
           - task: AzureCLI@2
             displayName: Login to Azure
             inputs:
-              azureSubscription: "a1f74e2d-ec58-4f9a-a112-088e3469febb"
+              azureSubscription: "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
                 # Connecte à l'abonnement Azure
-                az login --service-principal -u "nmarty.ext@simplonformations.onmicrosoft.com" -p $(servicePrincipalKey) --tenant "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
+                az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
                 # Sélectionne l'abonnement Azure
-                az account set --subscription "a1f74e2d-ec58-4f9a-a112-088e3469febb"
+                az account set --subscription "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
           - task: AzureCLI@2
             displayName: Set Context to AKS Cluster
             inputs:
-              azureSubscription: "a1f74e2d-ec58-4f9a-a112-088e3469febb"
+              azureSubscription: "a2e466aa-4f86-4545-b5b8-97da7c8febf3"
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
