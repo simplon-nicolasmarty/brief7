@@ -1,0 +1,48 @@
+# Spécifie le dépôt Git qui contient le pipeline
+trigger:
+  branches:
+    include:
+      - main
+
+# Définit les variables d'environnement utilisées dans le pipeline
+variables:
+  # Nom de l'application
+  appName: azure-voting-app
+  # Nom du cluster AKS
+  clusterName: my-aks-cluster
+  # Nom du namespace Kubernetes
+  namespace: default
+
+# Définit les tâches du pipeline
+steps:
+  # Tâche pour vérifier si une nouvelle version de l'image Docker est disponible
+  - task: Docker@2
+    displayName: Check for new Docker image version
+    inputs:
+      command: search
+      searchTerm: simplonasa/azure_voting_app
+      registry: docker.io
+    # Enregistre le résultat de la recherche dans une variable
+    outputs:
+      searchResult: ${{ steps.search.outputs.searchResult }}
+  # Tâche pour déployer l'image Docker dans le cluster AKS si une nouvelle version est disponible
+  - task: Kubernetes@1
+    displayName: Deploy Docker image to AKS
+    condition: eq(variables['Build.SourceBranch'], 'main')
+    inputs:
+      # Charge les credenciales d'authentification auprès de l'annuaire Azure
+      azureSubscription: a2e466aa-4f86-4545-b5b8-97da7c8febf3
+      # Charge le fichier de déploiement Kubernetes
+      action: deploy
+      resourceType: deployment
+      # Utilise l'image Docker la plus récente
+      image: simplonasa/azure_voting_app:${{ steps.search.outputs.searchResult.tags[0] }}
+      # Déploie l'application dans le cluster AKS et le namespace spécifiés
+      clusterName: Nicolas-AKS
+      namespace: k8s
+      # Applique les mises à jour au déploiement en utilisant un déploiement stratégique
+      rollingUpdateType: Rolling
+      # Redémarre les pods lorsque les mises à jour sont appliquées
+      restartPods: true
+      # Attends jusqu'à ce que tous les pods soient en état de fonctionnement avant de poursuivre
+      waitForDeployment: true
