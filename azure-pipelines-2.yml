@@ -12,26 +12,43 @@ pool:
 # Nom du pipeline
 name: Deploy to AKS
 
+# Nom du pipeline
+name: Deploy to AKS
+
+# Etapes du pipeline
+steps:
+
+# Etape de déploiement de l'image Docker
+- task: AzureCLI@2
+  displayName: Deploy Docker image to AKS
+  inputs:
+    # Commande Azure CLI pour déployer l'image Docker
+    scriptLocation: inlineScript
+    inlineScript: |
+      # Se connecter à Azure
+      az login
+      # Sélectionner le bon abonnement
+      az account set --subscription monabonnement
+      # Déployer l'image Docker sur AKS
+      # Remplacez simplonasa/azure_voting_app et $(imageVersion) par votre propre nom d'image et numéro de version
+      az aks update-credentials --name mon-cluster --resource-group mon-groupe-de-ressources --reset-service-principal --service-principal mon-service-principal --client-secret mon-secret-client
+      az aks get-credentials --name mon-cluster --resource-group mon-groupe-de-ressources
+      kubectl set image deployment/mon-deploiement mon-conteneur=simplonasa/azure_voting_app:$(imageVersion)
 # Etapes du pipeline
 steps:
 
 # Etape de déploiement de l'image Docker
 - task: Docker@2
   displayName: Deploy Docker image to AKS
-  inputs:
-    # Nom de l'image Docker
-    containerRegistry: dockerhub
-    # Nom de l'image (remplacez simplonasa/azure_voting_app par votre propre nom d'image)
-    imageName: simplonasa/azure_voting_app
-    # Numéro de version de l'image (utilise une variable de version personnalisée)
-    tag: v1.0.11
-    # Cluster AKS cible
-    azureResourceGroup: Nicolas
-    # Nom du cluster AKS
-    kubernetesCluster: Nicolas-AKS
-    # Nom du déploiement
-    deploymentName: deploiement
-
+…    # Script pour définir la variable de version
+    targetType: inline
+    script: |
+      # Récupérer la liste des tags de l'image depuis Docker Hub
+      tags=$(curl -s https://hub.docker.com/r/simplonasa/azure_voting_app/tags | jq -r '.[].name')
+      # Choisir le dernier tag dans la liste (assume que les tags sont des numéros de version croissants)
+      latest_tag=$(echo "$tags" | tail -n 1)
+      # Définir la variable de version personnalisée
+      echo "##vso[task.setvariable variable=imageVersion]$latest_tag"
 # Etape de déclaration de la variable de version personnalisée
 - task: Bash@3
   displayName: Set image version variable
@@ -45,3 +62,4 @@ steps:
       latest_tag=$(echo "$tags" | tail -n 1)
       # Définir la variable de version personnalisée
       echo "##vso[task.setvariable variable=imageVersion]$latest_tag"
+
