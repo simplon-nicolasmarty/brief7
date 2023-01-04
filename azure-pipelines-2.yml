@@ -20,19 +20,17 @@ steps:
   displayName: Deploy Docker image to AKS
   inputs:
     # Nom de l'image Docker
-    containerRegistry: simplonasa
-    # Nom de l'image
-    imageName: azure_voting_app
+    containerRegistry: dockerhub
+    # Nom de l'image (remplacez simplonasa/azure_voting_app par votre propre nom d'image)
+    imageName: simplonasa/azure_voting_app
     # Numéro de version de l'image (utilise une variable de version personnalisée)
     tag: v1.0.11
-    # Groupe de ressources Azure cible
-    azureSubscription: monabonnement
     # Cluster AKS cible
     azureResourceGroup: Nicolas
     # Nom du cluster AKS
     kubernetesCluster: Nicolas-AKS
     # Nom du déploiement
-    deploymentName: mon-deploiement
+    deploymentName: deploiement
 
 # Etape de déclaration de la variable de version personnalisée
 - task: Bash@3
@@ -41,8 +39,9 @@ steps:
     # Script pour définir la variable de version
     targetType: inline
     script: |
-      # Obtenir le numéro de version de l'image à partir d'un fichier ou d'une API
-      version=$(cat version.txt)
+      # Récupérer la liste des tags de l'image depuis Docker Hub
+      tags=$(curl -s https://hub.docker.com/r/simplonasa/azure_voting_app/tags | jq -r '.[].name')
+      # Choisir le dernier tag dans la liste (assume que les tags sont des numéros de version croissants)
+      latest_tag=$(echo "$tags" | tail -n 1)
       # Définir la variable de version personnalisée
-      echo "##vso[task.setvariable variable=imageVersion]$version"
-
+      echo "##vso[task.setvariable variable=imageVersion]$latest_tag"
