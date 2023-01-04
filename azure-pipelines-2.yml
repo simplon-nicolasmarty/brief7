@@ -1,0 +1,48 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+# Nom du pipeline
+name: Deploy to AKS
+
+# Etapes du pipeline
+steps:
+
+# Etape de déploiement de l'image Docker
+- task: Docker@2
+  displayName: Deploy Docker image to AKS
+  inputs:
+    # Nom de l'image Docker
+    containerRegistry: simplonasa
+    # Nom de l'image
+    imageName: azure_voting_app
+    # Numéro de version de l'image (utilise une variable de version personnalisée)
+    tag: v1.0.11
+    # Groupe de ressources Azure cible
+    azureSubscription: monabonnement
+    # Cluster AKS cible
+    azureResourceGroup: Nicolas
+    # Nom du cluster AKS
+    kubernetesCluster: Nicolas-AKS
+    # Nom du déploiement
+    deploymentName: mon-deploiement
+
+# Etape de déclaration de la variable de version personnalisée
+- task: Bash@3
+  displayName: Set image version variable
+  inputs:
+    # Script pour définir la variable de version
+    targetType: inline
+    script: |
+      # Obtenir le numéro de version de l'image à partir d'un fichier ou d'une API
+      version=$(cat version.txt)
+      # Définir la variable de version personnalisée
+      echo "##vso[task.setvariable variable=imageVersion]$version"
+
