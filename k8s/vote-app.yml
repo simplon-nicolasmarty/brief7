@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: voteapp
   labels:
-    app: nm-vote
+    app: voteapplb
 spec:
   selector:
     matchLabels:
-      app: nm-vote
+      app: voteapplb
   replicas: 2
   template:
     metadata:
       labels:
-        app: nm-vote
+        app: voteapplb
     spec:
       containers:
       - name: voteapp
@@ -39,7 +39,7 @@ spec:
   ports:
   - port: 80
   selector:
-    app: nm-vote
+    app: voteapplb
 ---
 apiVersion: apps/v1
 kind: Deployment
