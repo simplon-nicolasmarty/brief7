@@ -21,7 +21,7 @@ steps:
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceEndpoint: 'Nicolas-AKS-k8s'
-    namespace: 'k8s'
+    namespace: 'default'
     command: 'get'
     arguments: 'deployments'
   name: "kube"
