@@ -12,6 +12,7 @@ schedules:
   branches:
     include:
     - main
+  always: true
 
 pool:
   vmImage: ubuntu-latest
@@ -24,6 +25,7 @@ steps:
     namespace: 'default'
     command: 'get'
     arguments: 'deployments'
+    outputFormat: 'json'
   name: "kube"
 
 - task: CmdLine@2
@@ -51,3 +53,4 @@ steps:
     configuration: '/home/vsts/brief7/k8s/'
     arguments: ''
     secretType: 'generic'
+    outputFormat: 'json'
