@@ -3,38 +3,123 @@ kind: Deployment
 metadata:
   name: voteapp
   labels:
-    app: voteapplb
+    app: nm-vote
 spec:
   selector:
     matchLabels:
-      app: voteapplb
+      app: nm-vote
   replicas: 2
   template:
     metadata:
       labels:
-        app: voteapplb
+        app: nm-vote
     spec:
       containers:
       - name: voteapp
-        image: simplonasa/azure_voting_app:{{ version }}
+        image: simplonasa/azure_voting_app :{{ version }}
         ports:
         - containerPort: 80
-        resources:
-          requests:
-            cpu: 250m
-          limits:
-            cpu: 500m
         env:
+        - name: REDIS
+          value: cluster
         - name: STRESS_SECS
           value: "2"
+        - name: redispwd
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: REDIS_PASS
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: clustvoteapp
+  name: voteapp
 spec:
   type: ClusterIP
   ports:
   - port: 80
   selector:
-    app: voteapplb
+    app: nm-vote
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis-bd
+spec:
+  selector:
+    matchLabels:
+      app: redis-bd
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-bd
+    spec:
+      volumes: 
+      - name: redis-vol
+        persistentVolumeClaim:
+          claimName: nm-vol
+      containers:
+      - name: redis
+        image: redis
+        args: ["--requirepass","$(REDIS_PASS)"]
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: REDIS_PASS
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: redis-vol
+          mountPath: "/data"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cluster
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+  selector:
+    app: redis-bd
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingressvote
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  tls:
+    - secretName: nm-tls
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: voteapp
+            port:
+              number: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scaleapp
+spec:
+  maxReplicas: 8
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: voteapp
+  targetCPUUtilizationPercentage: 70
