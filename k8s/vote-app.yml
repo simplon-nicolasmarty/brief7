@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: voteapp
-        image: simplonasa/azure_voting_app :{{ version }}
+        image: simplonasa/azure_voting_app:{{ version }}
         ports:
         - containerPort: 80
         env:
