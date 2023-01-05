@@ -30,7 +30,7 @@ steps:
   inputs:
     script: |
       versionnew=$((curl 'https://hub.docker.com/v2/repositories/simplonasa/azure_voting_app/tags' | jq '."results"[0]["name"]')| sed 's/^.//;s/.$//')
-      versionold=$(echo $KUBE_KUBECTLOUTPUT | jq '.items[].spec.template.spec.containers[].image' | cut -d: -f2 | sed 's/"//')
+      versionold=$(echo $KUBE_KUBECTLOUTPUT | jq '.items[1].spec.template.spec.containers[].image' | cut -d: -f2 | sed 's/"//')
       echo "##vso[task.setvariable variable=vernew]$versionnew"
       echo "##vso[task.setvariable variable=verold]$versionold"
       cd /home/vsts
