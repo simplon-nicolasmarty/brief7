@@ -1,126 +1,125 @@
-apiVersion : applications/v1
-genre : Déploiement
-métadonnées :
-  nom : vote app
-  étiquettes :
-    application : voteapplb
-spécification :
-  sélecteur :
-    matchLabels :
-      application : voteapplb
-  répliques : 2
-  modèle :
-    métadonnées :
-      étiquettes :
-        application : voteapplb
-    spécification :
-      conteneurs :
-      - nom : voteapp
-        image : simplonasa/azure_voting_app  :{{ version }}
-        image : simplonasa/azure_voting_app :{{ version }}
-        ports :
-        - Port conteneur : 80
-        env :
-        - nom : REDIS
-          valeur : cluster
-        - nom : STRESS_SECS
-          valeur : " 2 "
-        - nom : redispwd
-          valueFrom :
-            secretKeyRef :
-              nom : redis
-              clé : REDIS_PASS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voteapp
+  labels:
+    app: voteapplb
+spec:
+  selector:
+    matchLabels:
+      app: voteapplb
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: voteapplb
+    spec:
+      containers:
+      - name: voteapp
+        image: simplonasa/azure_voting_app :{{ version }}
+        ports:
+        - containerPort: 80
+        env:
+        - name: REDIS
+          value: cluster
+        - name: STRESS_SECS
+          value: "2"
+        - name: redispwd
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: REDIS_PASS
 ---
-apiVersion : v1
-genre : Service
-métadonnées :
-  nom : vote app
-spécification :
-  type : Cluster IP
-  ports :
-  - port : 80
-  sélecteur :
-    application : voteapplb
+apiVersion: v1
+kind: Service
+metadata:
+  name: voteapp
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: voteapplb
 ---
-apiVersion : applications/v1
-genre : Déploiement
-métadonnées :
-  nom : redis
-  étiquettes :
-    application : redis-bd
-spécification :
-  sélecteur :
-    matchLabels :
-      application : redis-bd
-  répliques : 1
-  modèle :
-    métadonnées :
-      étiquettes :
-        application : redis-bd
-    spécification :
-      tomes :
-      - nom : redis-vol
-        persistentVolumeClaim :
-          nom_réclamation : nm-vol
-      conteneurs :
-      - nom : redis
-        image : redis
-        arguments : [" --requirepass ","$(REDIS_PASS)"]
-        env :
-        - nom : ALLOW_EMPTY_PASSWORD
-          valeur : " non "
-        - nom : REDIS_PASS
-          valueFrom :
-            secretKeyRef :
-              nom : redis
-              clé : REDIS_PASS
-        ports :
-        - port conteneur : 6379
-          nom : redis
-        volumeMounts :
-        - nom : redis-vol
-          mountPath : " /data "
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis-bd
+spec:
+  selector:
+    matchLabels:
+      app: redis-bd
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-bd
+    spec:
+      volumes: 
+      - name: redis-vol
+        persistentVolumeClaim:
+          claimName: nm-vol
+      containers:
+      - name: redis
+        image: redis
+        args: ["--requirepass","$(REDIS_PASS)"]
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: REDIS_PASS
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: redis-vol
+          mountPath: "/data"
 ---
-apiVersion : v1
-genre : Service
-métadonnées :
-  nom : cluster
-spécification :
-  type : Cluster IP
-  ports :
-  - port : 6379
-  sélecteur :
-    application : redis-bd
+apiVersion: v1
+kind: Service
+metadata:
+  name: cluster
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+  selector:
+    app: redis-bd
 ---
-apiVersion : networking.k8s.io/v1
-genre : Entrée
-métadonnées :
-  nom : vote d'entrée
-  annotations :
-    kubernetes.io/ingress.class : azure/application-gateway
-spécification :
-  tl :
-    - nomsecret : nm-tls
-  règles :
-  - http :
-      chemins :
-      - pathType : Préfixe
-        chemin : /
-        back -end :
-          service :
-            nom : vote app
-            ports :
-              nombre : 80
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingressvote
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  tls:
+    - secretName: nm-tls
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: voteapp
+            port:
+              number: 80
 ---
-apiVersion : mise à l' échelle automatique/v1
-type : HorizontalPodAutoscaler
-métadonnées :
-  nom : scale app
-spécification :
-  maxRépliques : 8
-  minRépliques : 2
-  scaleTargetRef :
-    apiVersion : applications/v1
-    genre : Déploiement
-    nom : vote app
-  Pourcentage d'utilisation du processeur cible : 70
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scaleapp
+spec:
+  maxReplicas: 8
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: voteapp
+  targetCPUUtilizationPercentage: 70
