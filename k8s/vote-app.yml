@@ -33,7 +33,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: redispwd
-              key: REDIS_PASS
+              key: nm-password
 ---
 apiVersion: v1
 kind: Service
@@ -77,7 +77,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: redispwd
-              key: REDIS_PASS
+              key: nm-password
         ports:
         - containerPort: 6379
           name: redis
