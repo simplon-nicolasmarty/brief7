@@ -3,16 +3,17 @@ kind: Deployment
 metadata:
   name: voteapp
   labels:
-    app: voteapp
+    app: vote-app
 spec:
   selector:
     matchLabels:
-      app: voteapp
+      app: vote-app
   replicas: 2
   template:
     metadata:
       labels:
-        app: voteapp
+        app: vot-eapp
+        app: vote-app
     spec:
       containers:
       - name: voteapp
@@ -44,7 +45,7 @@ spec:
   ports:
   - port: 80
   selector:
-    app: voteapp
+    app: vote-app
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -112,6 +113,19 @@ spec:
         path: /
         backend:
           service:
-            name: voteapp
+            name: vote-app
             port:
               number: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scaleapp
+spec:
+  maxReplicas: 8
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: voteapp
+  targetCPUUtilizationPercentage: 70
