@@ -76,7 +76,7 @@ spec:
         - name: REDIS_PASS
           valueFrom:
             secretKeyRef:
-              name: redis
+              name: redispwd
               key: REDIS_PASS
         ports:
         - containerPort: 6379
