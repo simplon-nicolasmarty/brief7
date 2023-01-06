@@ -47,7 +47,6 @@ steps:
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceEndpoint: 'Nicolas-AKS-k8s'
-    namespace: 'default'
     command: 'apply'
     useConfigurationFile: true
     configuration: '/home/vsts/brief7/k8s/'
