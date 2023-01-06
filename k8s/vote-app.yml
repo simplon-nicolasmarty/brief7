@@ -32,7 +32,7 @@ spec:
         - name: redispwd
           valueFrom:
             secretKeyRef:
-              name: redis
+              name: redispwd
               key: REDIS_PASS
 ---
 apiVersion: v1
