@@ -115,16 +115,3 @@ spec:
             name: voteapp
             port:
               number: 80
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: scaleapp
-spec:
-  maxReplicas: 8
-  minReplicas: 2
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: voteapp
-  targetCPUUtilizationPercentage: 70
