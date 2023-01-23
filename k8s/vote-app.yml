@@ -12,7 +12,6 @@ spec:
   template:
     metadata:
       labels:
-        app: vot-eapp
         app: vote-app
     spec:
       containers:
