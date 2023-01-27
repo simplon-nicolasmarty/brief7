@@ -69,11 +69,11 @@ spec:
       containers:
       - name: redis
         image: redis
-        args: ["--requirepass","$(REDIS_PASS)"]
+        args: ["--requirepass","$(REDIS_PWD)"]
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"
-        - name: REDIS_PASS
+        - name: REDIS_PWD
           valueFrom:
             secretKeyRef:
               name: redispwd
