@@ -112,7 +112,7 @@ spec:
         path: /
         backend:
           service:
-            name: vote-app
+            name: voteapp
             port:
               number: 80
 ---
