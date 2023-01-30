@@ -104,7 +104,7 @@ metadata:
     kubernetes.io/ingress.class: azure/application-gateway
 spec:
   tls:
-    - secretName: tlssecret
+    - secretName: test-tls
   rules:
   - http:
       paths:
