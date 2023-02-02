@@ -250,4 +250,4 @@ steps:
 Evaluation réalisé avec la calculatrice d'évaluation Azure 
 https://azure.microsoft.com/fr-fr/pricing/calculator
 
-![](https://i.imgur.com/KTiZ0l5.png)
+![](https://i.imgur.com/iHA1JMk.png)
