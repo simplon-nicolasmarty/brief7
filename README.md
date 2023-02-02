@@ -180,11 +180,6 @@ Ce pipeline deployé sur Azure DevOps, qui a pour but de déployer une applicati
 Le pipeline est déclenché par une modification sur la branche "main", et est programmé pour s'exécuter toutes les heures grâce à une tâche programmée (cron: "0 * * * *").
 
 ```
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
